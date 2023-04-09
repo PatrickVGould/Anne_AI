@@ -60,12 +60,29 @@ def run_conversational_agent(input_text):
     response = agent_chain.run(input=input_text)
     return response
 
-# Streamlit app layout and interaction
 st.title("Fred the AI Chat Bot with Knowledge Graph Memory")
 st.subheader("For Anne to talk to an AI with access to Wikipedia, ABC news, and other sources. In the personality of Mr. Fred Rogers")
 
-user_input = st.text_input("You:", placeholder="Type your message here...")
+# Initialize session states
+if "generated" not in st.session_state:
+    st.session_state["generated"] = []
+if "past" not in st.session_state:
+    st.session_state["past"] = []
+if "input" not in st.session_state:
+    st.session_state["input"] = ""
 
+# Get the user input
+user_input = st.text_input("You:", st.session_state["input"], key="input",
+                           placeholder="Type your message here...", label_visibility='hidden')
+
+# Generate the output using the run_conversational_agent function and the user input, and add the input/output to the session
 if st.button("Send"):
     response = run_conversational_agent(user_input)
-    st.write("Fred:", response)
+    st.session_state.past.append(user_input)
+    st.session_state.generated.append(response)
+
+# Display the conversation history using an expander
+with st.expander("Conversation", expanded=True):
+    for i in range(len(st.session_state['generated']) - 1, -1, -1):
+        st.info(f"User: {st.session_state['past'][i]}", icon="👩🏻‍🦱")
+        st.success(f"Fred: {st.session_state['generated'][i]}", icon="🧑🖥️")
