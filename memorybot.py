@@ -85,4 +85,4 @@ if st.button("Send"):
 with st.expander("Conversation", expanded=True):
     for i in range(len(st.session_state['generated']) - 1, -1, -1):
         st.info(f"User: {st.session_state['past'][i]}", icon="👩🏻‍🦱")
-        st.success(f"Fred: {st.session_state['generated'][i]}", icon="🧑🖥️")
+        st.success(f"Fred: {st.session_state['generated'][i]}", icon="🧑")
