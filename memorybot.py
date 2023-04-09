@@ -11,9 +11,10 @@ from langchain.chains import ConversationChain
 from langchain.chains.conversation.memory import ConversationEntityMemory
 from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
 from langchain.llms import OpenAI
+from langchain.chat_models import ChatOpenAI
 
 # Set Streamlit page configuration
-st.set_page_config(page_title='🧠MemoryBot🤖', layout='wide')
+st.set_page_config(page_title='Fred', layout='wide')
 # Initialize session states
 if "generated" not in st.session_state:
     st.session_state["generated"] = []
@@ -67,18 +68,17 @@ with st.sidebar.expander("🛠️ ", expanded=False):
     K = st.number_input(' (#)Summary of prompts to consider',min_value=3,max_value=1000)
 
 # Set up the Streamlit app layout
-st.title("🤖 Chat Bot with 🧠")
-st.subheader(" Powered by 🦜 LangChain + OpenAI + Streamlit")
+st.title("Fred the AI Chat Bot")
+st.subheader("For Anne to talk to an AI with access to wikipedia, ABC news, and other sources. In the personality of Mr Fred Rogers")
 
 # Ask the user to enter their OpenAI API key
-API_O = st.sidebar.text_input("API-KEY", type="password")
+API_O = st.secrets["OPENAI_API_KEY"]
 
 # Session state storage would be ideal
 if API_O:
     # Create an OpenAI instance
-    llm = OpenAI(temperature=0,
+    llm = ChatOpenAI(temperature=0.7,
                 openai_api_key=API_O, 
-                model_name=MODEL, 
                 verbose=False) 
 
 
@@ -114,8 +114,8 @@ download_str = []
 # Display the conversation history using an expander, and allow the user to download it
 with st.expander("Conversation", expanded=True):
     for i in range(len(st.session_state['generated'])-1, -1, -1):
-        st.info(st.session_state["past"][i],icon="🧐")
-        st.success(st.session_state["generated"][i], icon="🤖")
+        st.info(st.session_state["past"][i],icon="👩🏻‍🦱")
+        st.success(st.session_state["generated"][i], icon="🧑🖥️")
         download_str.append(st.session_state["past"][i])
         download_str.append(st.session_state["generated"][i])
     
