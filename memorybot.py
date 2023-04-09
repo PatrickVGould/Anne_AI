@@ -50,7 +50,7 @@ tools = [
     ),
 ]
 memory_buffer = ConversationBufferMemory(memory_key="chat_history")
-agent_chain = initialize_agent(tools, llm, agent=AgentType.CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=memory_buffer)
+agent_chain = initialize_agent(tools, conversation_with_kg, agent=AgentType.CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=memory_buffer)
 
 # Define function to run conversational agent
 def run_conversational_agent(input_text):
