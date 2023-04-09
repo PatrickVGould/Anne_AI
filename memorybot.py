@@ -1,135 +1,70 @@
-"""
-This is a Python script that serves as a frontend for a conversational AI model built with the `langchain` and `llms` libraries.
-The code creates a web application using Streamlit, a Python library for building interactive web apps.
-# Author: Avratanu Biswas
-# Date: March 11, 2023
-"""
-
-# Import necessary libraries
 import streamlit as st
-from langchain.chains import ConversationChain
-from langchain.chains.conversation.memory import ConversationEntityMemory
-from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
+from langchain.memory import ConversationKGMemory
 from langchain.llms import OpenAI
-from langchain.chat_models import ChatOpenAI
+from langchain.chains import ConversationChain
+from langchain.prompts.prompt import PromptTemplate
+from langchain.agents import Tool, AgentType, initialize_agent
+from langchain.memory import ConversationBufferMemory
+from langchain.utilities import GoogleSearchAPIWrapper
+from langchain.utilities import WikipediaAPIWrapper
 
-# Set Streamlit page configuration
-st.set_page_config(page_title='Fred', layout='wide')
-# Initialize session states
-if "generated" not in st.session_state:
-    st.session_state["generated"] = []
-if "past" not in st.session_state:
-    st.session_state["past"] = []
-if "input" not in st.session_state:
-    st.session_state["input"] = ""
-if "stored_session" not in st.session_state:
-    st.session_state["stored_session"] = []
+# Initialize Wikipedia API Wrapper
+wikipedia = WikipediaAPIWrapper()
 
-# Define function to get user input
-def get_text():
-    """
-    Get the user input text.
+# Initialize Language Model and Memory
+llm = OpenAI(temperature=0)
+memory = ConversationKGMemory(llm=llm, return_messages=True)
 
-    Returns:
-        (str): The text entered by the user
-    """
-    input_text = st.text_input("You: ", st.session_state["input"], key="input",
-                            placeholder="Your AI assistant here! Ask me anything ...", 
-                            label_visibility='hidden')
-    return input_text
+# Initialize Conversation Knowledge Graph Memory
+memory.save_context({"input": "say hi to sam"}, {"output": "who is sam"})
+memory.save_context({"input": "sam is a friend"}, {"output": "okay"})
 
-# Define function to start a new chat
-def new_chat():
-    """
-    Clears session state and starts a new chat.
-    """
-    save = []
-    for i in range(len(st.session_state['generated'])-1, -1, -1):
-        save.append("User:" + st.session_state["past"][i])
-        save.append("Bot:" + st.session_state["generated"][i])        
-    st.session_state["stored_session"].append(save)
-    st.session_state["generated"] = []
-    st.session_state["past"] = []
-    st.session_state["input"] = ""
-    st.session_state.entity_memory.store = {}
-    st.session_state.entity_memory.buffer.clear()
+# Initialize Prompt Template
+template = """The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. 
+If the AI does not know the answer to a question, it truthfully says it does not know. The AI ONLY uses information contained in the "Relevant Information" section and does not hallucinate.
 
-# Set up sidebar with various options
-with st.sidebar.expander("🛠️ ", expanded=False):
-    # Option to preview memory store
-    if st.checkbox("Preview memory store"):
-        with st.expander("Memory-Store", expanded=False):
-            st.session_state.entity_memory.store
-    # Option to preview memory buffer
-    if st.checkbox("Preview memory buffer"):
-        with st.expander("Bufffer-Store", expanded=False):
-            st.session_state.entity_memory.buffer
-    MODEL = st.selectbox(label='Model', options=['gpt-3.5-turbo','text-davinci-003','text-davinci-002','code-davinci-002'])
-    K = st.number_input(' (#)Summary of prompts to consider',min_value=3,max_value=1000)
+Relevant Information:
 
-# Set up the Streamlit app layout
-st.title("Fred the AI Chat Bot")
-st.subheader("For Anne to talk to an AI with access to wikipedia, ABC news, and other sources. In the personality of Mr Fred Rogers")
+{history}
 
-# Ask the user to enter their OpenAI API key
-API_O = st.secrets["OPENAI_API_KEY"]
+Conversation:
+Human: {input}
+AI:"""
+prompt = PromptTemplate(input_variables=["history", "input"], template=template)
 
-# Session state storage would be ideal
-if API_O:
-    # Create an OpenAI instance
-    llm = ChatOpenAI(temperature=0.7,
-                openai_api_key=API_O, 
-                verbose=False) 
+# Initialize ConversationChain
+conversation_with_kg = ConversationChain(
+    llm=llm,
+    verbose=True,
+    prompt=prompt,
+    memory=memory
+)
 
+# Initialize Conversational Agent
+tools = [
+    Tool(
+        name="Wikipedia Search",
+        func=wikipedia.run,
+        description="useful for when you need to answer questions that wikipedia may be able to answer"
+    ),
+]
+memory_buffer = ConversationBufferMemory(memory_key="chat_history")
+agent_chain = initialize_agent(tools, llm, agent=AgentType.CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=memory_buffer)
 
-    # Create a ConversationEntityMemory object if not already created
-    if 'entity_memory' not in st.session_state:
-            st.session_state.entity_memory = ConversationEntityMemory(llm=llm, k=K )
-        
-        # Create the ConversationChain object with the specified configuration
-    Conversation = ConversationChain(
-            llm=llm, 
-            prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE,
-            memory=st.session_state.entity_memory
-        )  
-else:
-    st.sidebar.warning('API key required to try this app.The API key is not stored in any form.')
-    # st.stop()
+# Define function to run conversational agent
+def run_conversational_agent(input_text):
+    # Update the memory with the new input
+    memory.load_memory_variables({"input": input_text})
+    # Get the response from the conversational agent
+    response = agent_chain.run(input=input_text)
+    return response
 
+# Streamlit app layout and interaction
+st.title("Fred the AI Chat Bot with Knowledge Graph Memory")
+st.subheader("For Anne to talk to an AI with access to Wikipedia, ABC news, and other sources. In the personality of Mr. Fred Rogers")
 
-# Add a button to start a new chat
-st.sidebar.button("New Chat", on_click = new_chat, type='primary')
+user_input = st.text_input("You:", placeholder="Type your message here...")
 
-# Get the user input
-user_input = get_text()
-
-# Generate the output using the ConversationChain object and the user input, and add the input/output to the session
-if user_input:
-    output = Conversation.run(input=user_input)  
-    st.session_state.past.append(user_input)  
-    st.session_state.generated.append(output)  
-
-# Allow to download as well
-download_str = []
-# Display the conversation history using an expander, and allow the user to download it
-with st.expander("Conversation", expanded=True):
-    for i in range(len(st.session_state['generated'])-1, -1, -1):
-        st.info(st.session_state["past"][i],icon="👩🏻‍🦱")
-        st.success(st.session_state["generated"][i], icon="🧑🖥️")
-        download_str.append(st.session_state["past"][i])
-        download_str.append(st.session_state["generated"][i])
-    
-    # Can throw error - requires fix
-    download_str = '\n'.join(download_str)
-    if download_str:
-        st.download_button('Download',download_str)
-
-# Display stored conversation sessions in the sidebar
-for i, sublist in enumerate(st.session_state.stored_session):
-        with st.sidebar.expander(label= f"Conversation-Session:{i}"):
-            st.write(sublist)
-
-# Allow the user to clear all stored conversation sessions
-if st.session_state.stored_session:   
-    if st.sidebar.checkbox("Clear-all"):
-        del st.session_state.stored_session
+if st.button("Send"):
+    response = run_conversational_agent(user_input)
+    st.write("Fred:", response)
