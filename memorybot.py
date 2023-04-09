@@ -5,7 +5,6 @@ from langchain.chains import ConversationChain
 from langchain.prompts.prompt import PromptTemplate
 from langchain.agents import Tool, AgentType, initialize_agent
 from langchain.memory import ConversationBufferMemory
-from langchain.utilities import GoogleSearchAPIWrapper
 from langchain.utilities import WikipediaAPIWrapper
 
 # Initialize Wikipedia API Wrapper
@@ -13,7 +12,7 @@ wikipedia = WikipediaAPIWrapper()
 
 # Initialize Language Model and Memory
 openai_api_key = st.secrets["OPENAI_API_KEY"]
-llm = OpenAI(temperature=0, api_key=openai_api_key)
+llm = OpenAI(temperature=0)
 memory = ConversationKGMemory(llm=llm, return_messages=True)
 
 # Initialize Conversation Knowledge Graph Memory
