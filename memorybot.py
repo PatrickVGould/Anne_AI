@@ -13,7 +13,7 @@ wikipedia = WikipediaAPIWrapper()
 
 # Initialize Language Model and Memory
 openai_api_key = st.secrets["OPENAI_API_KEY"]
-llm = OpenAI(temperature=0)
+llm = OpenAI(temperature=0, api_key=openai_api_key)
 memory = ConversationKGMemory(llm=llm, return_messages=True)
 
 # Initialize Conversation Knowledge Graph Memory
