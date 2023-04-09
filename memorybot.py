@@ -14,10 +14,11 @@ wikipedia = WikipediaAPIWrapper()
 openai_api_key = st.secrets["OPENAI_API_KEY"]
 llm = OpenAI(temperature=0)
 memory = ConversationKGMemory(llm=llm, return_messages=True)
+st.session_state['memory'] = memory
 
 # Initialize Conversation Knowledge Graph Memory
-memory.save_context({"input": "say hi to sam"}, {"output": "who is sam"})
-memory.save_context({"input": "sam is a friend"}, {"output": "okay"})
+st.session_state['memory'].save_context({"input": "say hi to sam"}, {"output": "who is sam"})
+st.session_state['memory'].save_context({"input": "sam is a friend"}, {"output": "okay"})
 
 # Initialize Prompt Template
 template = """The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. 
@@ -54,7 +55,7 @@ agent_chain = initialize_agent(tools, llm, agent=AgentType.CONVERSATIONAL_REACT_
 # Define function to run conversational agent
 def run_conversational_agent(input_text):
     # Update the memory with the new input
-    memory.load_memory_variables({"input": input_text})
+    st.session_state['memory'].load_memory_variables({"input": input_text})
     # Get the response from the conversational agent
     response = agent_chain.run(input=input_text)
     return response
