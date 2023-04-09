@@ -12,6 +12,7 @@ from langchain.utilities import WikipediaAPIWrapper
 wikipedia = WikipediaAPIWrapper()
 
 # Initialize Language Model and Memory
+openai_api_key = st.secrets["OPENAI_API_KEY"]
 llm = OpenAI(temperature=0)
 memory = ConversationKGMemory(llm=llm, return_messages=True)
 
