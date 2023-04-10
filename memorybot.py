@@ -156,11 +156,11 @@ if API_O:
         
         # Create the ConversationChain object with the specified configuration
     agent_chain = initialize_agent(tools, llm, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=st.session_state.entity_memory)
-    Conversation = ConversationChain(
-            llm=llm, 
-            prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE,
-            memory=st.session_state.entity_memory
-        )  
+    #Conversation = ConversationChain(
+    #        llm=llm, 
+    #        prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE,
+    #        memory=st.session_state.entity_memory
+    #    )  
 else:
     st.sidebar.warning('API key required to try this app.The API key is not stored in any form.')
     # st.stop()
@@ -174,7 +174,7 @@ user_input = get_text()
 
 # Generate the output using the ConversationChain object and the user input, and add the input/output to the session
 if user_input:
-    output = Conversation.run(input=user_input)  
+    output = agent_chain.run(input=user_input)  
     st.session_state.past.append(user_input)  
     st.session_state.generated.append(output)  
 
