@@ -77,7 +77,7 @@ def new_chat():
 #    if st.checkbox("Preview memory buffer"):
 #        with st.expander("Bufffer-Store", expanded=False):
 #            st.session_state.entity_memory.buffer
-K = st.number_input(' (#)Summary of prompts to consider',min_value=3,max_value=1000)
+#K = st.number_input(' (#)Summary of prompts to consider',min_value=3,max_value=1000)
 
 # Set up the Streamlit app layout
 st.title("Theodore Chatbot")
