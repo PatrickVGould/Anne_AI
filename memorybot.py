@@ -15,8 +15,35 @@ from langchain.chat_models import ChatOpenAI
 from langchain.agents import initialize_agent
 from langchain.agents import AgentType, Tool
 from langchain.utilities import WikipediaAPIWrapper
+import requests
+import xml.etree.ElementTree as ET
+from bs4 import BeautifulSoup
+
 
 wikipedia = WikipediaAPIWrapper()
+
+def get_abc_news_titles():
+    url = "https://www.abc.net.au/news/feed/2942460/rss.xml"
+    response = requests.get(url)
+    xml_data = response.text
+
+    root = ET.fromstring(xml_data)
+    titles_url = []
+    
+
+    for item in root.findall('.//item'):
+        title = item.find('title').text
+        url = item.find('link').text
+        titles_url.append({'title': title, 'url': url})
+
+    return titles_url
+
+def get_abc_news_text(url):
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    article = soup.find('article')
+    text = article.get_text()
+    return text
 
 # Initialize Conversational Agent
 tools = [
@@ -25,6 +52,17 @@ tools = [
         func=wikipedia.run,
         description="useful for when you need to answer questions that wikipedia may be able to answer"
     ),
+    Tool(
+        name="ABC News Headlines",
+        func=get_abc_news_titles,
+        description="useful for when you are asked about the current news. Returns the headlines of the latest news articles from ABC News"
+    ),
+    Tool(
+        name="ABC News Article",
+        func=get_abc_news_text.run,
+        description="useful for loading a specific article from ABC News. You need the url of the article which you will have received when you asked for the headlines"
+    )
+
 ]
 
 # Set Streamlit page configuration
