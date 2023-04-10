@@ -80,7 +80,7 @@ def new_chat():
 #K = st.number_input(' (#)Summary of prompts to consider',min_value=3,max_value=1000)
 
 # Set up the Streamlit app layout
-st.title("Theodore Chatbot")
+st.title("Anne's Chatbot Companion Theodore 🧐")
 
 # Ask the user to enter their OpenAI API key
 API_O = st.secrets["OPENAI_API_KEY"]
@@ -96,7 +96,7 @@ if API_O:
 
     # Create a ConversationEntityMemory object if not already created
     if 'entity_memory' not in st.session_state:
-            st.session_state.entity_memory = ConversationEntityMemory(llm=llm, k=K )
+            st.session_state.entity_memory = ConversationEntityMemory(llm=llm, k=6 )
         
         # Create the ConversationChain object with the specified configuration
     agent_chain = initialize_agent(tools, llm, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=st.session_state.entity_memory)
