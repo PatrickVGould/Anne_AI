@@ -53,14 +53,14 @@ def get_abc_news_titles(query):
 
     return titles_url
 
-@tool
-def get_abc_news_text(url):
-    """Returns the text of an article from ABC News when given the articles url"""
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    article = soup.find('article')
-    text = article.get_text()
-    return text
+#@tool
+#def get_abc_news_text(url):
+#    """Returns the text of an article from ABC News when given the articles url"""
+#    response = requests.get(url)
+#    soup = BeautifulSoup(response.content, 'html.parser')
+#    article = soup.find('article')
+#    text = article.get_text()
+#    return text
 
 # Initialize Conversational Agent
 tools = [
@@ -73,11 +73,6 @@ tools = [
         name="ABC News Headlines",
         func=get_abc_news_titles.run,
         description="useful for when you are asked about the current news. Returns the headlines of the latest news articles from ABC News"
-    ),
-    Tool(
-        name="ABC News Article",
-        func=get_abc_news_text.run,
-        description="useful for loading a specific article from ABC News"
     ),
     Tool(
         name="Calculator",
