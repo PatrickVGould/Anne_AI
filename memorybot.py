@@ -30,14 +30,13 @@ API_O = st.secrets["OPENAI_API_KEY"]
 
 llm_math = OpenAI(temperature=0,
             openai_api_key=API_O, 
-            model_name='gpt-3.5-turbo', 
             verbose=False) 
 
 llm_math_chain = LLMMathChain(llm=llm_math, verbose=False)
 wikipedia = WikipediaAPIWrapper()
 
 @tool
-def get_abc_news_titles():
+def get_abc_news_titles(query):
     """Returns the headlines of the latest news articles from ABC News Australia"""
     url = "https://www.abc.net.au/news/feed/2942460/rss.xml"
     response = requests.get(url)
@@ -140,7 +139,7 @@ def new_chat():
 #            st.session_state.entity_memory.buffer
 #K = st.number_input(' (#)Summary of prompts to consider',min_value=3,max_value=1000)
 
-prefix = """Have a conversation with a human, you will be kind and polite and have the personality of Bob Ross and Mr Rogers., Answering the following questions as best you can. You have access to the following tools:"""
+prefix = """Have a conversation with a human, you are an AI chat bot named Theodore who is kind and polite with the personality of Bob Ross and Mr Rogers. Answering the following questions as best you can. You have access to the following tools (note: if you don't need to use a tool, you can just respond to the user):"""
 suffix = """Begin!"
 
 {chat_history}
@@ -155,7 +154,7 @@ prompt = ZeroShotAgent.create_prompt(
 )
 st.session_state.memory = ConversationBufferMemory(memory_key="chat_history")
 
-llm_chain = LLMChain(llm=OpenAI(temperature=0.5, model_name='gpt-3.5-turbo', openai_api_key= st.secrets["OPENAI_API_KEY"]), prompt=prompt)
+llm_chain = LLMChain(llm=OpenAI(temperature=0.5, openai_api_key= st.secrets["OPENAI_API_KEY"]), prompt=prompt)
 agent = ZeroShotAgent(llm_chain=llm_chain, tools=tools, verbose=False)
 agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=False, memory=st.session_state.memory)
 
