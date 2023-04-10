@@ -19,8 +19,7 @@ from langchain import LLMMathChain
 import requests
 import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
-from langchain.tools import BaseTool
-
+from langchain.agents import tool
 
 API_O = st.secrets["OPENAI_API_KEY"]
 
@@ -48,24 +47,14 @@ def get_abc_news_titles():
 
     return titles_url
 
+@tool
 def get_abc_news_text(url):
+    """Returns the text of an article from ABC News when given the articles url"""
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
     article = soup.find('article')
     text = article.get_text()
     return text
-
-class abc_news_text(BaseTool):
-    name = "ABC News Article"
-    description = "useful for loading a specific article from ABC News. You need the url of the article which you will have received when you asked for the headlines"
-
-    def _run(self, url: str) -> str:
-        """Use the tool."""
-        response = requests.get(url)
-        soup = BeautifulSoup(response.content, 'html.parser')
-        article = soup.find('article')
-        text = article.get_text()
-        return text
 
 # Initialize Conversational Agent
 tools = [
@@ -79,7 +68,11 @@ tools = [
         func=get_abc_news_titles,
         description="useful for when you are asked about the current news. Returns the headlines of the latest news articles from ABC News"
     ),
-    abc_news_text(),
+    Tool(
+        name="ABC News Article",
+        func=get_abc_news_text.run,
+        description="useful for loading a specific article from ABC News. You need the url of the article which you will have received when you asked for the headlines"
+    ),
     Tool(
         name="Calculator",
         func=llm_math_chain.run,
