@@ -13,13 +13,18 @@ from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMP
 from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
 from langchain.agents import initialize_agent
-from langchain.agents import AgentType, Tool
+from langchain.agents import AgentType
 from langchain.utilities import WikipediaAPIWrapper
 from langchain import LLMMathChain
 import requests
 import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
 from langchain.agents import tool
+from langchain.agents import ZeroShotAgent, Tool, AgentExecutor
+from langchain.memory import ConversationBufferMemory
+from langchain import OpenAI, LLMChain
+from langchain.utilities import GoogleSearchAPIWrapper
+
 
 API_O = st.secrets["OPENAI_API_KEY"]
 
@@ -135,6 +140,26 @@ def new_chat():
 #            st.session_state.entity_memory.buffer
 #K = st.number_input(' (#)Summary of prompts to consider',min_value=3,max_value=1000)
 
+prefix = """Have a conversation with a human, answering the following questions as best you can. You have access to the following tools:"""
+suffix = """Begin!"
+
+{chat_history}
+Question: {input}
+{agent_scratchpad}"""
+
+prompt = ZeroShotAgent.create_prompt(
+    tools, 
+    prefix=prefix, 
+    suffix=suffix, 
+    input_variables=["input", "chat_history", "agent_scratchpad"]
+)
+st.session_state.memory = ConversationBufferMemory(memory_key="chat_history")
+
+llm_chain = LLMChain(llm=ChatOpenAI(temperature=0.5, openai_api_key= st.secrets["OPENAI_API_KEY"]), prompt=prompt)
+agent = ZeroShotAgent(llm_chain=llm_chain, tools=tools, verbose=True)
+agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True, memory=st.session_state.memory)
+
+
 # Set up the Streamlit app layout
 st.title("Anne's Chatbot Companion Theodore 🧐")
 
@@ -142,28 +167,28 @@ st.title("Anne's Chatbot Companion Theodore 🧐")
 API_O = st.secrets["OPENAI_API_KEY"]
 
 # Session state storage would be ideal
-if API_O:
-    # Create an OpenAI instance
-    llm = ChatOpenAI(temperature=0.5,
-                openai_api_key=API_O, 
-                model_name='gpt-3.5-turbo', 
-                verbose=True,
-                chat_history=st.session_state.entity_memory.buffer) 
-
-
-    # Create a ConversationEntityMemory object if not already created
-    if 'entity_memory' not in st.session_state:
-            st.session_state.entity_memory = ConversationEntityMemory(llm=llm, k=6, memory_key = 'chat_history')
-        
-        # Create the ConversationChain object with the specified configuration
-    agent_chain = initialize_agent(tools, llm, prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=st.session_state.entity_memory, chat_history=st.session_state.entity_memory.buffer)
-    #Conversation = ConversationChain(
+#if API_O:
+#    # Create an OpenAI instance
+#    llm = ChatOpenAI(temperature=0.5,
+#                openai_api_key=API_O, 
+#                model_name='gpt-3.5-turbo', 
+#                verbose=True,
+#                chat_history=st.session_state.entity_memory.buffer) 
+#
+#
+#    # Create a ConversationEntityMemory object if not already created
+#    if 'entity_memory' not in st.session_state:
+#            st.session_state.entity_memory = ConversationEntityMemory(llm=llm, k=6, memory_key = 'chat_history')
+#        
+#        # Create the ConversationChain object with the specified configuration
+#    agent_chain = initialize_agent(tools, llm, prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE, agent=AgentType.#CHAT_CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=st.session_state.entity_memory, chat_history=st.session_state.#entity_memory.buffer)
+#    #Conversation = ConversationChain(
     #        llm=llm, 
     #        prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE,
     #        memory=st.session_state.entity_memory
     #    )  
-else:
-    st.sidebar.warning('API key required to try this app.The API key is not stored in any form.')
+#else:
+#    st.sidebar.warning('API key required to try this app.The API key is not stored in any form.')
     # st.stop()
 
 
@@ -175,7 +200,7 @@ user_input = get_text()
 
 # Generate the output using the ConversationChain object and the user input, and add the input/output to the session
 if user_input:
-    output = agent_chain.run(input={'user_input': user_input, 'chat_history': st.session_state.entity_memory.buffer})
+    output = agent_chain.run(input= user_input)
     st.session_state.past.append(user_input)  
     st.session_state.generated.append(output)  
 
