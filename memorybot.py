@@ -174,7 +174,7 @@ user_input = get_text()
 
 # Generate the output using the ConversationChain object and the user input, and add the input/output to the session
 if user_input:
-    output = agent_chain.run(input=user_input)  
+    output = agent_chain.run(input=user_input, chat_history = st.session_state.entity_memory)  
     st.session_state.past.append(user_input)  
     st.session_state.generated.append(output)  
 
