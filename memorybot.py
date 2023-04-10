@@ -15,11 +15,21 @@ from langchain.chat_models import ChatOpenAI
 from langchain.agents import initialize_agent
 from langchain.agents import AgentType, Tool
 from langchain.utilities import WikipediaAPIWrapper
+from langchain import LLMMathChain
 import requests
 import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
+from langchain.tools import BaseTool
 
 
+API_O = st.secrets["OPENAI_API_KEY"]
+
+llm_math = OpenAI(temperature=0,
+            openai_api_key=API_O, 
+            model_name='gpt-3.5-turbo', 
+            verbose=False) 
+
+llm_math_chain = LLMMathChain(llm=llm_math, verbose=False)
 wikipedia = WikipediaAPIWrapper()
 
 def get_abc_news_titles():
@@ -45,6 +55,18 @@ def get_abc_news_text(url):
     text = article.get_text()
     return text
 
+class abc_news_text(BaseTool):
+    name = "ABC News Article"
+    description = "useful for loading a specific article from ABC News. You need the url of the article which you will have received when you asked for the headlines"
+
+    def _run(self, url: str) -> str:
+        """Use the tool."""
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        article = soup.find('article')
+        text = article.get_text()
+        return text
+
 # Initialize Conversational Agent
 tools = [
     Tool(
@@ -61,6 +83,11 @@ tools = [
         name="ABC News Article",
         func=get_abc_news_text().run,
         description="useful for loading a specific article from ABC News. You need the url of the article which you will have received when you asked for the headlines"
+    ),
+    Tool(
+        name="Calculator",
+        func=llm_math_chain.run,
+        description="useful for when you need to answer questions about math"
     )
 
 ]
