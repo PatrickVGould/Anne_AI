@@ -77,10 +77,25 @@ def respond_to_user(response):
 # Initialize Conversational Agent
 tools = [
     Tool(
+        name="Respond to User",
+        func=respond_to_user.run,
+        description="useful for when you are ready to respond to the user"
+    ),
+    Tool(
         name="Wikipedia Search",
         func=wikipedia.run,
         description="useful for when you need to answer questions that wikipedia may be able to answer"
-    )
+    ),
+    Tool(
+        name="ABC News Headlines",
+        func=get_abc_news_titles.run,
+        description="useful for when you are asked about the current news. Returns the headlines of the latest news articles from ABC News"
+    ),
+    Tool(
+        name="Calculator",
+        func=llm_math_chain.run,
+        description="useful for when you need to answer questions about math"
+    ),
 ]
 
 # Set Streamlit page configuration
@@ -150,9 +165,9 @@ prompt = ZeroShotAgent.create_prompt(
 )
 st.session_state.memory = ConversationBufferMemory(memory_key="chat_history")
 
-llm=ChatOpenAI(temperature=0)
-agent_chain = initialize_agent(tools, llm, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=memory)
-
+llm_chain = LLMChain(llm=OpenAI(temperature=0.5, openai_api_key= st.secrets["OPENAI_API_KEY"], max_tokens=2000), prompt=prompt)
+agent = ZeroShotAgent(llm_chain=llm_chain, tools=tools, verbose=False)
+agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=False, memory=st.session_state.memory)
 
 
 # Set up the Streamlit app layout
