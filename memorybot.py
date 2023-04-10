@@ -57,6 +57,11 @@ def get_abc_news_titles(query):
 
     return titles_url
 
+@tool
+def respond_to_user(response):
+    """Tells you what to respond to the user once you have a response ready"""
+    return str(f"Respond to user: {response}")
+
 #@tool
 #def get_abc_news_text(url):
 #    """Returns the text of an article from ABC News when given the articles url"""
@@ -68,6 +73,11 @@ def get_abc_news_titles(query):
 
 # Initialize Conversational Agent
 tools = [
+    Tool(
+        name="Respond to User",
+        func=respond_to_user.run,
+        description="useful for when you are ready to respond to the user"
+    )
     Tool(
         name="Wikipedia Search",
         func=wikipedia.run,
