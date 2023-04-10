@@ -155,7 +155,7 @@ if API_O:
             st.session_state.entity_memory = ConversationEntityMemory(llm=llm, k=6 )
         
         # Create the ConversationChain object with the specified configuration
-    agent_chain = initialize_agent(tools, llm, prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=st.session_state.entity_memory)
+    agent_chain = initialize_agent(tools, llm, prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=st.session_state.entity_memory, chat_history=st.session_state.entity_memory.buffer)
     #Conversation = ConversationChain(
     #        llm=llm, 
     #        prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE,
