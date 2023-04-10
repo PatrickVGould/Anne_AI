@@ -26,8 +26,8 @@ from langchain import OpenAI, LLMChain
 from langchain.utilities import GoogleSearchAPIWrapper
 from langchain.utilities import OpenWeatherMapAPIWrapper
 
-weather_api_key = str(st.secrets['WEATHER_API_KEY'])
-weather = OpenWeatherMapAPIWrapper(openweathermap_api_key=weather_api_key)
+#weather_api_key = str(st.secrets['WEATHER_API_KEY'])
+#weather = OpenWeatherMapAPIWrapper(openweathermap_api_key=weather_api_key)
 
 
 
@@ -95,11 +95,6 @@ tools = [
         name="Calculator",
         func=llm_math_chain.run,
         description="useful for when you need to answer questions about math"
-    ),
-    Tool(
-        name="Weather",
-        func=weather.run,
-        description="useful for when you need to answer questions about the weather"
     ),
 ]
 
