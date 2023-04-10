@@ -31,7 +31,9 @@ llm_math = OpenAI(temperature=0,
 llm_math_chain = LLMMathChain(llm=llm_math, verbose=False)
 wikipedia = WikipediaAPIWrapper()
 
+@tool
 def get_abc_news_titles():
+    """Returns the headlines of the latest news articles from ABC News Australia"""
     url = "https://www.abc.net.au/news/feed/2942460/rss.xml"
     response = requests.get(url)
     xml_data = response.text
