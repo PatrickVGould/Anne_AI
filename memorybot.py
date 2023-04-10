@@ -59,7 +59,7 @@ tools = [
     ),
     Tool(
         name="ABC News Article",
-        func=get_abc_news_text.run,
+        func=get_abc_news_text().run,
         description="useful for loading a specific article from ABC News. You need the url of the article which you will have received when you asked for the headlines"
     )
 
