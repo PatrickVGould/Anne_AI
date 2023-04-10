@@ -26,7 +26,7 @@ from langchain import OpenAI, LLMChain
 from langchain.utilities import GoogleSearchAPIWrapper
 from langchain.utilities import OpenWeatherMapAPIWrapper
 
-weather = OpenWeatherMapAPIWrapper(openweathermap_api_key=st.secrets['OPENWEATHERMAP_API_KEY'])
+weather = OpenWeatherMapAPIWrapper(openweathermap_api_key=st.secrets['WEATHER_API_KEY'])
 
 
 
