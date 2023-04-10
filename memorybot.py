@@ -150,6 +150,8 @@ prompt = ZeroShotAgent.create_prompt(
 )
 st.session_state.memory = ConversationBufferMemory(memory_key="chat_history")
 
+st.session_state.memory.append("User: Hello my name is Anne. You are Theodore, a chatbot. I am going to ask you some questions.")
+
 llm=ChatOpenAI(temperature=0)
 agent_chain = initialize_agent(tools, llm, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=st.session_state.memory)
 
