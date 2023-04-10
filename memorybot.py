@@ -147,7 +147,8 @@ if API_O:
     llm = ChatOpenAI(temperature=0.5,
                 openai_api_key=API_O, 
                 model_name='gpt-3.5-turbo', 
-                verbose=True) 
+                verbose=True,
+                chat_history=st.session_state.entity_memory.buffer) 
 
 
     # Create a ConversationEntityMemory object if not already created
