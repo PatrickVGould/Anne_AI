@@ -28,7 +28,7 @@ tools = [
 ]
 
 # Set Streamlit page configuration
-st.set_page_config(page_title='Theodore', layout='wide')
+st.set_page_config(page_title='Theodore', page_icon='🧐', layout='wide')
 # Initialize session states
 if "generated" not in st.session_state:
     st.session_state["generated"] = []
