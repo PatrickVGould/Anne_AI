@@ -24,6 +24,10 @@ from langchain.agents import ZeroShotAgent, Tool, AgentExecutor
 from langchain.memory import ConversationBufferMemory
 from langchain import OpenAI, LLMChain
 from langchain.utilities import GoogleSearchAPIWrapper
+from langchain.utilities import OpenWeatherMapAPIWrapper
+
+weather = OpenWeatherMapAPIWrapper()
+
 
 
 API_O = st.secrets["OPENAI_API_KEY"]
@@ -78,8 +82,12 @@ tools = [
         name="Calculator",
         func=llm_math_chain.run,
         description="useful for when you need to answer questions about math"
-    )
-
+    ),
+    Tool(
+        name="Weather",
+        func=weather.run,
+        description="useful for when you need to answer questions about the weather"
+    ),
 ]
 
 # Set Streamlit page configuration
