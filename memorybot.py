@@ -30,7 +30,6 @@ API_O = st.secrets["OPENAI_API_KEY"]
 
 llm_math = OpenAI(temperature=0,
             openai_api_key=API_O,
-            model_name='gpt-3.5-turbo', 
             verbose=False) 
 
 llm_math_chain = LLMMathChain(llm=llm_math, verbose=False)
@@ -151,8 +150,11 @@ prompt = ZeroShotAgent.create_prompt(
 st.session_state.memory = ConversationBufferMemory(memory_key="chat_history")
 
 llm_chain = LLMChain(llm=OpenAI(temperature=0.5, model_name='gpt-3.5-turbo', openai_api_key= st.secrets["OPENAI_API_KEY"]), prompt=prompt)
-agent = ZeroShotAgent(llm_chain=llm_chain, tools=tools, verbose=False)
-agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=False, memory=st.session_state.memory)
+#agent = ZeroShotAgent(llm_chain=llm_chain, tools=tools, verbose=False)
+#agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=False, memory=st.session_state.memory)
+llm=ChatOpenAI(temperature=0)
+agent_chain = initialize_agent(tools, llm, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=st.session_state.memory)
+
 
 
 # Set up the Streamlit app layout
