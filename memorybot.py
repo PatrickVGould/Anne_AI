@@ -140,7 +140,7 @@ def new_chat():
 #            st.session_state.entity_memory.buffer
 #K = st.number_input(' (#)Summary of prompts to consider',min_value=3,max_value=1000)
 
-prefix = """Have a conversation with a human, answering the following questions as best you can. You have access to the following tools:"""
+prefix = """Have a conversation with a human, you will be kind and polite and have the personality of Bob Ross and Mr Rogers., Answering the following questions as best you can. You have access to the following tools:"""
 suffix = """Begin!"
 
 {chat_history}
@@ -155,7 +155,7 @@ prompt = ZeroShotAgent.create_prompt(
 )
 st.session_state.memory = ConversationBufferMemory(memory_key="chat_history")
 
-llm_chain = LLMChain(llm=ChatOpenAI(temperature=0.5, openai_api_key= st.secrets["OPENAI_API_KEY"]), prompt=prompt)
+llm_chain = LLMChain(llm=OpenAI(temperature=0.5, model_name='gpt-3.5-turbo', openai_api_key= st.secrets["OPENAI_API_KEY"]), prompt=prompt)
 agent = ZeroShotAgent(llm_chain=llm_chain, tools=tools, verbose=False)
 agent_chain = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=False, memory=st.session_state.memory)
 
@@ -200,7 +200,7 @@ user_input = get_text()
 
 # Generate the output using the ConversationChain object and the user input, and add the input/output to the session
 if user_input:
-    output = str(agent_chain.run(input= user_input))
+    output = agent_chain.run(input= user_input)
     st.session_state.past.append(user_input)  
     st.session_state.generated.append(output)  
 
