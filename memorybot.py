@@ -79,11 +79,7 @@ tools = [
         func=get_abc_news_titles,
         description="useful for when you are asked about the current news. Returns the headlines of the latest news articles from ABC News"
     ),
-    Tool(
-        name="ABC News Article",
-        func=get_abc_news_text().run,
-        description="useful for loading a specific article from ABC News. You need the url of the article which you will have received when you asked for the headlines"
-    ),
+    abc_news_text(),
     Tool(
         name="Calculator",
         func=llm_math_chain.run,
