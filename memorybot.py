@@ -68,16 +68,16 @@ def new_chat():
     st.session_state.entity_memory.buffer.clear()
 
 # Set up sidebar with various options
-with st.sidebar.expander("🛠️ ", expanded=False):
-    # Option to preview memory store
-    if st.checkbox("Preview memory store"):
-        with st.expander("Memory-Store", expanded=False):
-            st.session_state.entity_memory.store
-    # Option to preview memory buffer
-    if st.checkbox("Preview memory buffer"):
-        with st.expander("Bufffer-Store", expanded=False):
-            st.session_state.entity_memory.buffer
-    K = st.number_input(' (#)Summary of prompts to consider',min_value=3,max_value=1000)
+#with st.sidebar.expander("🛠️ ", expanded=False):
+#    # Option to preview memory store
+#    if st.checkbox("Preview memory store"):
+#        with st.expander("Memory-Store", expanded=False):
+#            st.session_state.entity_memory.store
+#    # Option to preview memory buffer
+#    if st.checkbox("Preview memory buffer"):
+#        with st.expander("Bufffer-Store", expanded=False):
+#            st.session_state.entity_memory.buffer
+K = st.number_input(' (#)Summary of prompts to consider',min_value=3,max_value=1000)
 
 # Set up the Streamlit app layout
 st.title("Theodore Chatbot")
