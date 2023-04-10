@@ -72,7 +72,7 @@ tools = [
     ),
     Tool(
         name="ABC News Headlines",
-        func=get_abc_news_titles,
+        func=get_abc_news_titles.run,
         description="useful for when you are asked about the current news. Returns the headlines of the latest news articles from ABC News"
     ),
     Tool(
